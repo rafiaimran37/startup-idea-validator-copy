@@ -5,13 +5,24 @@ const dotenv = require("dotenv");
 
 dotenv.config();
 
+const authRoutes = require("./routes/authRoutes");
+const dashboardRoutes = require("./routes/dashboardRoutes");
+const mcpRoutes = require("./routes/mcpRoutes");
+
+const chatRoutes = require("./routes/chatRoutes");
+const { ensureUsersTable, ensureIdeasTable, hasDatabaseConfig } = require("./config/db");
+
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
 // NOTE: This line is intentionally added to create a small, trackable change for git commit/push flow.
 app.use(express.static(path.join(__dirname, "public")));
+app.use("/api/auth", authRoutes);
+app.use("/api", dashboardRoutes);
+app.use("/api/chat", chatRoutes);
+app.use("/mcp", mcpRoutes);
 
 const geminiApiKey =
   process.env.GEMINI_API_KEY?.trim() ||
@@ -19,6 +30,14 @@ const geminiApiKey =
   "";
 const hasGeminiKey = Boolean(geminiApiKey);
 const geminiModel = process.env.GEMINI_MODEL?.trim() || "gemini-1.5-flash";
+const preferredGeminiModels = (process.env.GEMINI_MODEL_PRIORITY?.trim()
+  ? process.env.GEMINI_MODEL_PRIORITY.split(",")
+  : ["gemma-4-31b-it", "gemini-flash-latest", geminiModel, "gemini-2.5-flash", "gemini-pro-latest"])
+  .map((model) => model.trim())
+  .filter(Boolean)
+  .filter((model, index, array) => array.indexOf(model) === index)
+  .filter((model) => /^(gemini-(?:.*flash.*|pro-latest)|gemma-)/i.test(model))
+  .slice(0, 4);
 
 if (!hasGeminiKey) {
   console.warn(
@@ -48,22 +67,59 @@ function buildAnalysisPrompt({ title, description, targetAudience }) {
 
 function tryParseJson(text) {
   if (!text || typeof text !== "string") return null;
+
+  // Quick attempt
   try {
     return JSON.parse(text);
   } catch (_) {
-    // fall through
+    // continue to fallbacks
   }
+
+  // Try to extract a balanced JSON object from the text (handles extra text before/after)
   const firstBrace = text.indexOf("{");
-  const lastBrace = text.lastIndexOf("}");
-  if (firstBrace === -1 || lastBrace === -1 || lastBrace <= firstBrace) {
-    return null;
+  if (firstBrace === -1) return null;
+
+  // Walk the string to find the matching closing brace taking quotes and escapes into account
+  let inString = false;
+  let escape = false;
+  let depth = 0;
+  for (let i = firstBrace; i < text.length; i++) {
+    const ch = text[i];
+    if (escape) {
+      escape = false;
+      continue;
+    }
+    if (ch === "\\") {
+      escape = true;
+      continue;
+    }
+    if (ch === '"') {
+      inString = !inString;
+      continue;
+    }
+    if (inString) continue;
+    if (ch === '{') depth++;
+    if (ch === '}') {
+      depth--;
+      if (depth === 0) {
+        const maybeJson = text.slice(firstBrace, i + 1);
+        try {
+          return JSON.parse(maybeJson);
+        } catch (_) {
+          // If parsing fails, attempt to sanitize common issues (trailing commas)
+          try {
+            const sanitized = maybeJson.replace(/,\s*}/g, '}').replace(/,\s*]/g, ']');
+            return JSON.parse(sanitized);
+          } catch (__)
+          {
+            return null;
+          }
+        }
+      }
+    }
   }
-  const maybeJson = text.slice(firstBrace, lastBrace + 1);
-  try {
-    return JSON.parse(maybeJson);
-  } catch (_) {
-    return null;
-  }
+
+  return null;
 }
 
 function normalizeTextField(value) {
@@ -162,7 +218,7 @@ function normalizeCompetitors(value) {
 }
 
 function normalizeAnalysis(parsed) {
-  const obj = parsed && typeof parsed === "object" ? parsed : {};
+  const obj = parsed && typeof parsed === 'object' ? parsed : {};
   return {
     marketDemand: normalizeTextField(obj.marketDemand),
     competitors: normalizeCompetitors(obj.competitors),
@@ -172,21 +228,45 @@ function normalizeAnalysis(parsed) {
   };
 }
 
+// Cache for available models
+let cachedModels = null;
+
+// Get list of available models
+async function getAvailableModels(apiKey) {
+  if (cachedModels) return cachedModels;
+
+  try {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
+    const response = await fetch(url);
+    const data = await response.json();
+    
+    if (data.models && Array.isArray(data.models)) {
+      cachedModels = data.models
+        .filter(m => m.supportedGenerationMethods?.includes('generateContent'))
+        .map(m => m.name.replace('models/', ''));
+      
+      console.log('Available models:', cachedModels);
+      return cachedModels;
+    }
+  } catch (err) {
+    console.error('Error fetching models:', err.message);
+  }
+  
+  // Fallback to a short real-model list so failures don't exhaust the timeout.
+  return ['gemini-2.5-flash', 'gemini-flash-latest', 'gemini-pro-latest'];
+}
+
 async function generateWithGemini({ prompt, temperature = 0.7 }) {
   if (!geminiApiKey) {
     throw new Error("GEMINI_API_KEY is not set.");
   }
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(
-    geminiModel
-  )}:generateContent?key=${encodeURIComponent(geminiApiKey)}`;
-
   const maxOutputTokens = 2048;
   const requestTimeoutMs = Number.parseInt(
-    process.env.GEMINI_TIMEOUT_MS || "30000",
+    process.env.GEMINI_TIMEOUT_MS || "60000",
     10
   );
-  const timeoutMs = Number.isFinite(requestTimeoutMs) && requestTimeoutMs > 0 ? requestTimeoutMs : 30000;
+  const timeoutMs = Number.isFinite(requestTimeoutMs) && requestTimeoutMs > 0 ? requestTimeoutMs : 60000;
 
   const baseBody = {
     contents: [
@@ -209,74 +289,102 @@ async function generateWithGemini({ prompt, temperature = 0.7 }) {
     },
   };
 
-  async function callGemini(body) {
-    const controller = new AbortController();
-    const timeoutHandle = setTimeout(() => controller.abort(), timeoutMs);
-    try {
-      const response = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        signal: controller.signal,
-        body: JSON.stringify(body),
-      });
+  // Try only a short real-model list to avoid long failover loops and timeout churn.
+  const models = preferredGeminiModels.length
+    ? preferredGeminiModels
+    : ['gemini-2.5-flash', 'gemini-flash-latest', 'gemini-pro-latest'];
 
-      const data = await response.json().catch(() => null);
-      if (!response.ok) {
-        const message =
-          (data && data.error && data.error.message) ||
-          `Gemini request failed (${response.status}).`;
-        const error = new Error(message);
-        error.status = response.status;
-        error.data = data;
-        throw error;
-      }
+  if (!models.length) {
+    throw new Error("No usable Gemini models are available.");
+  }
+  
+  for (const model of models) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(
+      model
+    )}:generateContent?key=${encodeURIComponent(geminiApiKey)}`;
 
-      const candidate = data?.candidates?.[0];
-      const parts = candidate?.content?.parts;
-      const text = Array.isArray(parts)
-        ? parts
-            .map((p) => (typeof p?.text === "string" ? p.text : ""))
-            .filter(Boolean)
-            .join("")
-            .trim()
-        : "";
+    async function callGemini(body) {
+      const controller = new AbortController();
+      const timeoutHandle = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        const response = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          signal: controller.signal,
+          body: JSON.stringify(body),
+        });
 
-      if (!text) {
-        const blockReason = data?.promptFeedback?.blockReason;
-        const finishReason = candidate?.finishReason;
-        if (blockReason) {
-          throw new Error(`Gemini blocked the response (blockReason=${blockReason}).`);
+        const data = await response.json().catch(() => null);
+        if (!response.ok) {
+          const message =
+            (data && data.error && data.error.message) ||
+            `Gemini request failed (${response.status}).`;
+          const error = new Error(message);
+          error.status = response.status;
+          error.data = data;
+          throw error;
         }
-        throw new Error(
-          `Gemini returned empty content${finishReason ? ` (finishReason=${finishReason})` : ""}.`
-        );
-      }
 
-      return { text, data };
+        const candidate = data?.candidates?.[0];
+        const parts = candidate?.content?.parts;
+        const text = Array.isArray(parts)
+          ? parts
+              .map((p) => (typeof p?.text === "string" ? p.text : ""))
+              .filter(Boolean)
+              .join("")
+              .trim()
+          : "";
+
+        if (!text) {
+          const blockReason = data?.promptFeedback?.blockReason;
+          const finishReason = candidate?.finishReason;
+          if (blockReason) {
+            throw new Error(`Gemini blocked the response (blockReason=${blockReason}).`);
+          }
+          throw new Error(
+            `Gemini returned empty content${finishReason ? ` (finishReason=${finishReason})` : ""}.`
+          );
+        }
+
+        return { text, data };
+      } catch (error) {
+        if (error && error.name === "AbortError") {
+          throw new Error(`Gemini request timed out after ${timeoutMs}ms.`);
+        }
+        throw error;
+      } finally {
+        clearTimeout(timeoutHandle);
+      }
+    }
+
+    try {
+      console.log(`🔄 Trying model: ${model}`);
+      const result = await callGemini(jsonModeBody);
+      console.log(`✅ Success with model: ${model}`);
+      return result;
     } catch (error) {
-      if (error && error.name === "AbortError") {
-        throw new Error(`Gemini request timed out after ${timeoutMs}ms.`);
+      console.log(`❌ Model ${model} failed:`, error.message);
+      
+      // If json mode failed, try without it
+      if (error.message.includes("responseMimeType")) {
+        try {
+          console.log(`🔄 Retrying ${model} without JSON mode...`);
+          const result = await callGemini(baseBody);
+          console.log(`✅ Success with model: ${model} (without JSON mode)`);
+          return result;
+        } catch (retryError) {
+          console.log(`❌ Retry failed for ${model}`);
+        }
       }
-      throw error;
-    } finally {
-      clearTimeout(timeoutHandle);
+      
+      // Continue to next model
+      continue;
     }
   }
-
-  try {
-    return await callGemini(jsonModeBody);
-  } catch (error) {
-    const message = String(error?.message || "");
-    const shouldRetryWithoutJsonMode =
-      message.includes("responseMimeType") &&
-      (message.includes("Unknown") || message.includes("unknown") || message.includes("Invalid"));
-    if (shouldRetryWithoutJsonMode) {
-      return await callGemini(baseBody);
-    }
-    throw error;
-  }
+  
+  throw new Error(`All available models failed. Tried: ${models.join(', ')}`);
 }
 
 function generateMockAnalysis({ title, description, targetAudience }) {
@@ -323,23 +431,131 @@ app.post("/api/analyze", async (req, res) => {
 
   try {
     const prompt = buildAnalysisPrompt({ title, description, targetAudience });
-    const { text } = await generateWithGemini({ prompt, temperature: 0.7 });
+
+    // Allow callers or environment to influence randomness.
+    const reqTemp = Number(req.body.temperature);
+    const envTemp = Number.parseFloat(process.env.GEMINI_TEMPERATURE || "");
+    const temperature = Number.isFinite(reqTemp) && reqTemp > 0 ? reqTemp : (Number.isFinite(envTemp) ? envTemp : 0.7);
+
+    const { text } = await generateWithGemini({ prompt, temperature });
 
     const parsed = tryParseJson(text);
-    if (!parsed) {
+    if (parsed) {
       return res.json({
+        ...normalizeAnalysis(parsed),
         raw: text,
-        warning:
-          "Gemini returned non-JSON output. Please review the raw response.",
         provider: "gemini",
         model: geminiModel,
       });
     }
 
+    // Fallback: attempt to heuristically extract specific fields from the raw text
+    const fallback = {};
+    try {
+      // marketDemand / revenueModel / suggestions as simple string fields
+      const strField = (key) => {
+        const re = new RegExp('"' + key + '"\\s*:\\s*"([\\s\\S]*?)"', 'i');
+        const m = text.match(re);
+        return m ? m[1].replace(/\\n/g, '\\n').trim() : undefined;
+      };
+
+      const arrayField = (key) => {
+        const idx = text.indexOf('"' + key + '"');
+        if (idx === -1) return undefined;
+        const start = text.indexOf('[', idx);
+        if (start === -1) return undefined;
+        // find matching bracket
+        let inString = false;
+        let escape = false;
+        let depth = 0;
+        for (let i = start; i < text.length; i++) {
+          const ch = text[i];
+          if (escape) { escape = false; continue; }
+          if (ch === '\\') { escape = true; continue; }
+          if (ch === '"') { inString = !inString; continue; }
+          if (inString) continue;
+          if (ch === '[') depth++;
+          if (ch === ']') {
+            depth--;
+            if (depth === 0) {
+              let slice = text.slice(start, i + 1);
+              // sanitize trailing commas
+              slice = slice.replace(/,\\s*]/g, ']');
+              slice = slice.replace(/,\\s*}/g, '}');
+              try {
+                return JSON.parse(slice);
+              } catch (e) {
+                return undefined;
+              }
+            }
+          }
+        }
+        return undefined;
+      };
+
+      const objField = (key) => {
+        const idx = text.indexOf('"' + key + '"');
+        if (idx === -1) return undefined;
+        const start = text.indexOf('{', idx);
+        if (start === -1) return undefined;
+        // find matching brace
+        let inString = false;
+        let escape = false;
+        let depth = 0;
+        for (let i = start; i < text.length; i++) {
+          const ch = text[i];
+          if (escape) { escape = false; continue; }
+          if (ch === '\\') { escape = true; continue; }
+          if (ch === '"') { inString = !inString; continue; }
+          if (inString) continue;
+          if (ch === '{') depth++;
+          if (ch === '}') {
+            depth--;
+            if (depth === 0) {
+              let slice = text.slice(start, i + 1);
+              slice = slice.replace(/,\\s*}/g, '}');
+              try {
+                return JSON.parse(slice);
+              } catch (e) {
+                return undefined;
+              }
+            }
+          }
+        }
+        return undefined;
+      };
+
+      const md = strField('marketDemand') || strField('market_demand');
+      const rm = strField('revenueModel') || strField('revenue_model');
+      const sug = strField('suggestions');
+      const comps = arrayField('competitors');
+      const sw = objField('swot');
+
+      if (md) fallback.marketDemand = md;
+      if (rm) fallback.revenueModel = rm;
+      if (sug) fallback.suggestions = sug;
+      if (comps) fallback.competitors = comps;
+      if (sw) fallback.swot = sw;
+    } catch (e) {
+      console.warn('Fallback parsing failed:', e.message);
+    }
+
+    // If fallback produced useful data, return normalized result
+    if (Object.keys(fallback).length) {
+      return res.json({
+        ...normalizeAnalysis(fallback),
+        raw: text,
+        provider: 'gemini',
+        model: geminiModel,
+        warning: 'Gemini returned malformed JSON; heuristically extracted fields.'
+      });
+    }
+
+    // Last resort: return raw with warning
     return res.json({
-      ...normalizeAnalysis(parsed),
       raw: text,
-      provider: "gemini",
+      warning: 'Gemini returned non-JSON output. Please review the raw response.',
+      provider: 'gemini',
       model: geminiModel,
     });
   } catch (error) {
@@ -352,6 +568,24 @@ app.post("/api/analyze", async (req, res) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`Server listening on http://localhost:${port}`);
-});
+async function startServer() {
+  if (hasDatabaseConfig()) {
+    try {
+      await ensureUsersTable();
+      await ensureIdeasTable();
+      console.log("Users and ideas tables are ready.");
+    } catch (error) {
+      console.warn("Database initialization warning:", error.message);
+    }
+  } else {
+    console.warn(
+      "Database config is incomplete. Set DB_USER, DB_PASSWORD, and DB_NAME to enable auth routes."
+    );
+  }
+
+  app.listen(port, () => {
+    console.log(`Server listening on http://localhost:${port}`);
+  });
+}
+
+startServer();

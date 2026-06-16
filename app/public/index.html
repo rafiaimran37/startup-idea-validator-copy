@@ -4,11 +4,24 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AI Startup Idea Validator</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.1/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="styles.css" />
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body>
     <main class="container">
-      <h1>AI Startup Idea Validator</h1>
+      <div class="topbar">
+        <div>
+          <h1>AI Startup Idea Validator</h1>
+          <p class="subtitle">Analyze startup ideas with Gemini, or sign in to use the protected dashboard.</p>
+        </div>
+        <div class="auth-links">
+          <a href="dashboard.html" class="dashboard-link">Dashboard</a>
+          <a href="login.html">Login</a>
+          <a href="signup.html" class="secondary">Sign Up</a>
+        </div>
+      </div>
 
       <form id="idea-form">
         <label>
@@ -26,13 +39,18 @@
           <input type="text" id="targetAudience" required placeholder="e.g., busy parents, small businesses" />
         </label>
 
-        <button type="submit" id="submit-btn">Analyze Idea</button>
+        <div class="form-buttons">
+          <button type="submit" id="submit-btn">Analyze Idea</button>
+          <button type="button" id="mcp-test-btn" class="secondary">Test MCP Analysis</button>
+          <button type="button" id="reset-btn" class="reset-btn">Reset</button>
+        </div>
       </form>
 
       <div id="spinner" class="spinner hidden"></div>
 
       <section id="result" class="hidden">
         <button id="clear-btn" class="clear-btn">Clear Results</button>
+        <button id="save-idea-btn" class="clear-btn" style="display:none;margin-left:10px;">Save to My Ideas</button>
         <h2>AI Analysis Result</h2>
 
         <div class="section" id="market-demand">
@@ -84,8 +102,112 @@
       </section>
 
       <div id="status" class="status"></div>
+
+      <div id="mcp-spinner" class="spinner hidden"></div>
+
+      <section id="mcp-result" class="hidden">
+        <button id="mcp-clear-btn" class="clear-btn">Clear MCP Results</button>
+        <h2>MCP Test Results</h2>
+
+        <div class="section" id="mcp-market-analysis">
+          <h3>Market Analysis</h3>
+          <p class="content"></p>
+        </div>
+
+        <div class="section" id="mcp-swot">
+          <h3>SWOT</h3>
+          <div class="swot-grid">
+            <div>
+              <h4>Strengths</h4>
+              <ul class="content" id="mcp-strengths"></ul>
+            </div>
+            <div>
+              <h4>Weaknesses</h4>
+              <ul class="content" id="mcp-weaknesses"></ul>
+            </div>
+            <div>
+              <h4>Opportunities</h4>
+              <ul class="content" id="mcp-opportunities"></ul>
+            </div>
+            <div>
+              <h4>Threats</h4>
+              <ul class="content" id="mcp-threats"></ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="section" id="mcp-revenue-suggestions">
+          <h3>Revenue Suggestions</h3>
+          <p class="content"></p>
+        </div>
+
+        <div class="section" id="mcp-ai-recommendations">
+          <h3>AI Recommendations</h3>
+          <p class="content"></p>
+        </div>
+
+        <div class="section" id="mcp-raw">
+          <h3>MCP Raw Response</h3>
+          <pre id="mcp-raw-output"></pre>
+        </div>
+      </section>
+
+      <!-- Startup Analytics Dashboard -->
+      <section id="analytics-dashboard" class="analytics-dashboard">
+        <div class="dashboard-header">
+          <h2>Startup Analytics Dashboard</h2>
+          <p>Visualize your startup validation metrics</p>
+        </div>
+
+        <div class="dashboard-grid">
+          <!-- Radar Chart Card -->
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3>Startup Validation Scores</h3>
+              <p>Multi-dimensional analysis of your idea</p>
+            </div>
+            <div class="chart-container">
+              <canvas id="radarChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Doughnut Chart Card -->
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3>Business Model Distribution</h3>
+              <p>Revenue stream composition</p>
+            </div>
+            <div class="chart-container">
+              <canvas id="doughnutChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Bar Chart Card -->
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3>Analysis & Category Trends</h3>
+              <p>Popular startup categories</p>
+            </div>
+            <div class="chart-container">
+              <canvas id="barChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=20260525"></script>
+    <script src="charts.js?v=20260525"></script>
+    <!-- Floating AI Chatbot Button -->
+    <a href="chatbot.html" id="floating-ai-btn"
+      style="position: fixed; bottom: 16px; right: 16px; z-index: 50; width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(to right, #3b82f6, #6366f1); display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 32px 0 rgba(0,0,0,0.18); transition: transform 0.2s;">
+      <svg xmlns="http://www.w3.org/2000/svg" style="width: 20px; height: 20px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <circle cx="12" cy="12" r="10" stroke="#6366f1" stroke-width="2" fill="#fff"/>
+        <ellipse cx="12" cy="10.5" rx="4.5" ry="4" fill="#e0e7ff"/>
+        <ellipse cx="9.5" cy="10.5" rx="1.2" ry="1.5" fill="#6366f1"/>
+        <ellipse cx="14.5" cy="10.5" rx="1.2" ry="1.5" fill="#6366f1"/>
+        <rect x="9" y="15" width="6" height="2" rx="1" fill="#6366f1"/>
+      </svg>
+    </a>
   </body>
 </html>

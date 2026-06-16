@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard | Startup AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                50: '#eef2ff',
+                600: '#4f46e5',
+                700: '#4338ca',
+              },
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body class="min-h-screen bg-slate-950 text-slate-100">
+    <div class="min-h-screen">
+      <header class="border-b border-white/10 bg-white/5 backdrop-blur">
+        <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-5 sm:px-6 lg:px-8">
+          <div>
+            <p class="text-xs uppercase tracking-[0.3em] text-indigo-300">Startup AI</p>
+            <h1 class="text-xl font-bold">Dashboard</h1>
+          </div>
+          <button id="logout-btn" class="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/10">
+            Logout
+          </button>
+        </div>
+      </header>
+
+      <main class="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+        <div id="message" class="mb-4 hidden rounded-xl px-4 py-3 text-sm"></div>
+
+
+        <section class="grid gap-6 lg:grid-cols-[1.4fr_0.9fr]">
+          <div class="rounded-3xl border border-white/10 bg-white/5 p-8 shadow-2xl backdrop-blur-xl">
+            <p class="text-sm text-slate-300">Protected account overview</p>
+            <h2 id="welcome-title" class="mt-3 text-3xl font-bold">Welcome</h2>
+            <p id="welcome-copy" class="mt-3 max-w-2xl text-slate-300">Loading your dashboard data...</p>
+
+            <div class="mt-8 grid gap-4 sm:grid-cols-3">
+              <div class="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
+                <p class="text-sm text-slate-400">Ideas analyzed</p>
+                <p id="ideas-analyzed" class="mt-2 text-2xl font-bold">0</p>
+              </div>
+              <div class="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
+                <p class="text-sm text-slate-400">Saved ideas</p>
+                <p id="saved-ideas" class="mt-2 text-2xl font-bold">0</p>
+              </div>
+              <div class="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
+                <p class="text-sm text-slate-400">Account status</p>
+                <p id="account-status" class="mt-2 text-2xl font-bold">Active</p>
+              </div>
+            </div>
+
+            <div class="mt-10">
+              <h3 class="text-xl font-semibold mb-4">Your Saved Ideas</h3>
+              <div id="saved-ideas-list" class="space-y-4"></div>
+            </div>
+          </div>
+
+          <aside class="space-y-6">
+            <div class="rounded-3xl border border-white/10 bg-white/5 p-6">
+              <h3 class="text-lg font-semibold">Next steps</h3>
+              <ul id="next-steps" class="mt-4 space-y-3 text-sm text-slate-300"></ul>
+            </div>
+            <div class="rounded-3xl border border-indigo-500/20 bg-indigo-500/10 p-6">
+              <h3 class="text-lg font-semibold text-indigo-200">How to continue</h3>
+              <p class="mt-3 text-sm text-slate-300">Use the protected dashboard after login, then open the main analyzer to test startup ideas with Gemini.</p>
+              <a href="index.html" class="mt-5 inline-flex rounded-xl bg-indigo-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-400">Open analyzer</a>
+            </div>
+          </aside>
+        </section>
+      </main>
+    </div>
+
+    <script src="dashboard.js"></script>
+  </body>
+</html>

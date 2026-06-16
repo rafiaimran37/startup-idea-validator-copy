@@ -1,0 +1,45 @@
+﻿{
+    "marketDemand":  "High demand driven by the rise of self-paced online learning, exam prep pressure, and the adoption of generative AI in EdTech. Students seek structured, adaptive learning paths rather than generic schedules.",
+    "competitors":  [
+                        {
+                            "name":  "Quizlet",
+                            "details":  "Offers flashcards, practice tests, and AI-assisted study guides to students worldwide. Competes directly on quiz generation and study aids.",
+                            "businessModel":  "Freemium subscription (Quizlet Plus) and advertising."
+                        },
+                        {
+                            "name":  "Anki",
+                            "details":  "Offers open-source spaced repetition flashcards for students and language learners. Competes on personalized retrieval practice.",
+                            "businessModel":  "Free desktop and Android apps, paid iOS app purchase."
+                        },
+                        {
+                            "name":  "Shovel App",
+                            "details":  "Offers a detailed study planner and calendar integration for college students. Competes on time management and study scheduling.",
+                            "businessModel":  "Subscription-based (monthly/annual)."
+                        },
+                        {
+                            "name":  "Socratic by Google",
+                            "details":  "Offers AI-powered explanations and study resources for high school and university students. Competes on AI-driven learning support.",
+                            "businessModel":  "Free (funded by Google\u0027s ecosystem)."
+                        }
+                    ],
+    "revenueModel":  "Freemium subscription model with a basic free tier (limited AI generation) and a premium tier (unlimited personalized plans, advanced AI tutoring, and ad-free access).",
+    "swot":  {
+                 "strengths":  [
+
+                               ],
+                 "weaknesses":  [
+
+                                ],
+                 "opportunities":  [
+
+                                   ],
+                 "threats":  [
+
+                             ]
+             },
+    "suggestions":  "",
+    "raw":  "{\n  \"marketDemand\": \"High demand driven by the rise of self-paced online learning, exam prep pressure, and the adoption of generative AI in EdTech. Students seek structured, adaptive learning paths rather than generic schedules.\",\n  \"competitors\": [\n    {\n      \"name\": \"Quizlet\",\n      \"details\": \"Offers flashcards, practice tests, and AI-assisted study guides to students worldwide. Competes directly on quiz generation and study aids.\",\n      \"businessModel\": \"Freemium subscription (Quizlet Plus) and advertising.\"\n    },\n    {\n      \"name\": \"Anki\",\n      \"details\": \"Offers open-source spaced repetition flashcards for students and language learners. Competes on personalized retrieval practice.\",\n      \"businessModel\": \"Free desktop and Android apps, paid iOS app purchase.\"\n    },\n    {\n      \"name\": \"Shovel App\",\n      \"details\": \"Offers a detailed study planner and calendar integration for college students. Competes on time management and study scheduling.\",\n      \"businessModel\": \"Subscription-based (monthly/annual).\"\n    },\n    {\n      \"name\": \"Socratic by Google\",\n      \"details\": \"Offers AI-powered explanations and study resources for high school and university students. Competes on AI-driven learning support.\",\n      \"businessModel\": \"Free (funded by Google\u0027s ecosystem).\"\n    }\n  ],\n  \"revenueModel\": \"Freemium subscription model with a basic free tier (limited AI generation) and a premium tier (unlimited personalized plans, advanced AI tutoring, and ad-free access).\",\n  \"swot\": {\n    \"strengths\": [\n      \"Highly personalized learning paths adapted to individual student pacing.\",\n      \"Instant quiz generation from user-uploaded notes or textbooks.\",\n      \"Scalable AI infrastructure allowing low-cost content creation.\"\n    ],",
+    "provider":  "gemini",
+    "model":  "gemini-pro",
+    "warning":  "Gemini returned malformed JSON; heuristically extracted fields."
+}

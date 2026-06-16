@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login | Startup AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                50: '#eef2ff',
+                600: '#4f46e5',
+                700: '#4338ca',
+              },
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body class="min-h-screen bg-slate-950 text-slate-100">
+    <div class="min-h-screen flex items-center justify-center px-4 py-12">
+      <div class="w-full max-w-md">
+        <div class="rounded-3xl border border-white/10 bg-white/5 p-8 shadow-2xl backdrop-blur-xl">
+          <div class="mb-8 text-center">
+            <p class="text-sm uppercase tracking-[0.3em] text-indigo-300">Startup AI</p>
+            <h1 class="mt-3 text-3xl font-bold">Welcome back</h1>
+            <p class="mt-2 text-sm text-slate-300">Sign in to access your dashboard and start validating ideas.</p>
+          </div>
+
+          <div id="message" class="mb-4 hidden rounded-xl px-4 py-3 text-sm"></div>
+
+          <form id="login-form" class="space-y-4">
+            <div>
+              <label class="mb-2 block text-sm font-medium text-slate-200">Email</label>
+              <input id="email" type="email" required class="w-full rounded-xl border border-white/10 bg-slate-900/80 px-4 py-3 text-slate-100 outline-none transition focus:border-indigo-400" placeholder="you@example.com" />
+            </div>
+            <div>
+              <label class="mb-2 block text-sm font-medium text-slate-200">Password</label>
+              <input id="password" type="password" required class="w-full rounded-xl border border-white/10 bg-slate-900/80 px-4 py-3 text-slate-100 outline-none transition focus:border-indigo-400" placeholder="••••••••" />
+            </div>
+            <button id="login-btn" type="submit" class="w-full rounded-xl bg-indigo-500 px-4 py-3 font-semibold text-white transition hover:bg-indigo-400 active:scale-[0.99]">
+              Log In
+            </button>
+          </form>
+
+          <p class="mt-6 text-center text-sm text-slate-300">
+            Don't have an account?
+            <a class="font-semibold text-indigo-300 hover:text-indigo-200" href="signup.html">Sign up</a>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <script src="auth.js"></script>
+  </body>
+  </html>

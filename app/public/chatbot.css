@@ -1,0 +1,617 @@
+/* chatbot.css - AI Startup Advisor Chatbot Styles */
+
+/* Override body styling to match project theme */
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at top, rgba(37, 99, 235, 0.16), transparent 35%),
+    linear-gradient(180deg, #0f172a 0%, #111827 55%, #0f172a 100%);
+  color: #e5e7eb;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.suggestion-card {
+  background: rgba(37, 99, 235, 0.12);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: #e5e7eb;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+.suggestion-card:hover {
+  background: rgba(37, 99, 235, 0.25);
+  border-color: rgba(59, 130, 246, 0.6);
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.2);
+}
+.suggestion-card:active {
+  transform: scale(0.95);
+}
+
+.animate-float {
+  animation: floaty 3s ease-in-out infinite;
+}
+@keyframes floaty {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-16px); }
+}
+
+/* Typing indicator dots */
+.dot-anim::after {
+  content: '';
+  display: inline-block;
+  width: 1.2em;
+  vertical-align: middle;
+  animation: dots 1.2s steps(3, end) infinite;
+}
+@keyframes dots {
+  0%, 20% { content: ''; }
+  40% { content: '.'; }
+  60% { content: '..'; }
+  80%, 100% { content: '...'; }
+}
+
+/* Chat message bubbles */
+.message-bubble {
+  max-width: 80%;
+  padding: 10px 14px;
+  border-radius: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+  word-wrap: break-word;
+  transition: all 0.2s;
+}
+.message-user {
+  background: #2563eb;
+  color: white;
+  align-self: flex-end;
+  margin-right: 0;
+}
+.message-ai {
+  background: rgba(37, 99, 235, 0.15);
+  color: #e5e7eb;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  align-self: flex-start;
+  margin-left: 0;
+}
+
+/* Hide scrollbars for chat area */
+#chat-area::-webkit-scrollbar {
+  display: none;
+}
+#chat-area {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  padding-bottom: 180px !important;
+}
+
+/* Chatbot page specific styles */
+#chat-area {
+  background: rgba(20, 30, 50, 0.5);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+#welcome-state {
+  color: #94a3b8;
+}
+
+h1 {
+  color: #e5e7eb;
+}
+
+/* ============================================
+   PREMIUM MODERN INPUT CONTAINER STYLES
+   ============================================ */
+
+.input-container-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  width: 100%;
+}
+
+/* Main Premium Input Container with Glassmorphism */
+.premium-input-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  height: 70px;
+  padding: 0 16px;
+  border-radius: 9999px;
+  
+  /* Glassmorphism effect */
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  
+  /* Premium border with subtle blue glow */
+  border: 1.5px solid rgba(59, 130, 246, 0.3);
+  
+  /* Soft shadow */
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  
+  /* Smooth transitions */
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+/* Hover effect on container */
+.premium-input-container:hover {
+  background: rgba(15, 23, 42, 0.85);
+  border-color: rgba(59, 130, 246, 0.4);
+  box-shadow: 
+    0 12px 40px rgba(37, 99, 235, 0.15),
+    0 0 0 1px rgba(255, 255, 255, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Focus effect on container when input is focused */
+.premium-input-container:focus-within {
+  background: rgba(15, 23, 42, 0.9);
+  border-color: rgba(59, 130, 246, 0.5);
+  box-shadow: 
+    0 12px 48px rgba(37, 99, 235, 0.2),
+    0 0 20px rgba(37, 99, 235, 0.1),
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* Premium Text Input Field */
+.premium-input-field {
+  flex: 1;
+  height: 100%;
+  background: transparent;
+  border: none;
+  color: #e5e7eb;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  padding: 0 12px;
+  outline: none;
+  letter-spacing: 0.3px;
+  
+  /* Text rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.premium-input-field::placeholder {
+  color: #64748b;
+  opacity: 0.8;
+  font-weight: 400;
+  letter-spacing: 0.2px;
+}
+
+.premium-input-field:focus::placeholder {
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+/* Mic Button - Small Circular with Hover Glow */
+.mic-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1.5px solid rgba(59, 130, 246, 0.3);
+  color: #60a5fa;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  flex-shrink: 0;
+  position: relative;
+  
+  /* Smooth shadow */
+  box-shadow: 
+    0 4px 12px rgba(37, 99, 235, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.mic-button:hover {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: rgba(59, 130, 246, 0.5);
+  color: #93c5fd;
+  box-shadow: 
+    0 6px 20px rgba(37, 99, 235, 0.2),
+    0 0 20px rgba(59, 130, 246, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  transform: translateY(-2px);
+}
+
+.mic-button:active {
+  transform: translateY(0);
+  box-shadow: 
+    0 2px 8px rgba(37, 99, 235, 0.15),
+    0 0 15px rgba(59, 130, 246, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.mic-button:focus {
+  outline: none;
+  border-color: rgba(59, 130, 246, 0.6);
+  box-shadow: 
+    0 6px 20px rgba(37, 99, 235, 0.25),
+    0 0 25px rgba(59, 130, 246, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.mic-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* Send Button - Premium Gradient with Advanced Effects */
+.send-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2563eb 0%, #1e40af 50%, #1e3a8a 100%);
+  border: 1.5px solid rgba(37, 99, 235, 0.5);
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  flex-shrink: 0;
+  position: relative;
+  font-weight: 600;
+  
+  /* Premium shadow with depth */
+  box-shadow: 
+    0 8px 24px rgba(37, 99, 235, 0.3),
+    0 4px 12px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.1);
+  
+  /* Glow effect on load */
+  animation: sendButtonGlow 2s ease-in-out;
+}
+
+@keyframes sendButtonGlow {
+  0%, 100% {
+    box-shadow: 
+      0 8px 24px rgba(37, 99, 235, 0.3),
+      0 4px 12px rgba(0, 0, 0, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2),
+      inset 0 -2px 4px rgba(0, 0, 0, 0.1);
+  }
+  50% {
+    box-shadow: 
+      0 12px 32px rgba(37, 99, 235, 0.4),
+      0 6px 16px rgba(0, 0, 0, 0.25),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2),
+      inset 0 -2px 4px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.send-button:hover {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1e40af 100%);
+  border-color: rgba(59, 130, 246, 0.8);
+  box-shadow: 
+    0 12px 32px rgba(37, 99, 235, 0.4),
+    0 6px 16px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.15);
+  transform: translateY(-3px) scale(1.05);
+}
+
+.send-button:active {
+  background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 50%, #1e3a8a 100%);
+  box-shadow: 
+    0 4px 12px rgba(37, 99, 235, 0.2),
+    0 2px 6px rgba(0, 0, 0, 0.15),
+    inset 0 2px 4px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px) scale(0.98);
+}
+
+.send-button:focus {
+  outline: none;
+  border-color: rgba(59, 130, 246, 1);
+  box-shadow: 
+    0 12px 32px rgba(37, 99, 235, 0.5),
+    0 0 30px rgba(59, 130, 246, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.send-button:disabled {
+  background: linear-gradient(135deg, #64748b 0%, #475569 50%, #334155 100%);
+  border-color: rgba(100, 116, 139, 0.3);
+  color: #cbd5e1;
+  cursor: not-allowed;
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transform: none;
+}
+
+.send-icon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.1));
+}
+
+/* Responsive Design for Smaller Screens */
+@media (max-width: 640px) {
+  .header-section {
+    padding: 20px 12px 28px 12px;
+    gap: 12px;
+  }
+  
+  .header-title {
+    font-size: 1.5rem;
+  }
+  
+  .back-button {
+    width: 44px;
+    height: 44px;
+    left: 12px;
+  }
+  
+  .back-icon {
+    width: 22px;
+    height: 22px;
+  }
+  
+  .main-content {
+    gap: 24px;
+  }
+  
+  .suggestions-section {
+    padding: 0;
+  }
+  
+  .suggestions-section .grid {
+    gap: 2.5 !important;
+  }
+  
+  .chat-section {
+    padding: 0 12px;
+    min-height: 200px;
+  }
+  
+  .premium-input-container {
+    height: 64px;
+    padding: 0 12px;
+    gap: 8px;
+  }
+  
+  .premium-input-field {
+    font-size: 0.95rem;
+  }
+  
+  .mic-button {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .send-button {
+    width: 46px;
+    height: 46px;
+  }
+  
+  .mic-icon {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .send-icon {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* Animation for container on page load */
+#chat-form {
+  animation: slideUp 0.5s cubic-bezier(0.4, 0.0, 0.2, 1);
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100%;
+  max-width: 448px;
+  margin: 0 auto;
+  background: rgba(15, 23, 42, 0.95);
+  z-index: 100;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+   HEADER SECTION WITH BACK BUTTON
+   ============================================ */
+
+.header-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+  padding: 24px 16px 32px 16px;
+  gap: 16px;
+}
+
+.header-title {
+  color: #e5e7eb;
+  font-size: 1.875rem;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: -0.3px;
+  margin: 0;
+  flex: 1;
+  animation: slideDown 0.5s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+   BACK BUTTON - UPDATED FOR LAYOUT INTEGRATION
+   ============================================ */
+
+.back-button {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  
+  /* Glassmorphism effect */
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  
+  /* Premium border */
+  border: 1.5px solid rgba(59, 130, 246, 0.3);
+  border-radius: 12px;
+  
+  /* Icon color */
+  color: #60a5fa;
+  
+  /* Smooth shadow */
+  box-shadow: 
+    0 8px 24px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  
+  /* Cursor and transitions */
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  
+  /* Text reset */
+  font-size: 0;
+  padding: 0;
+  margin: 0;
+  outline: none;
+  z-index: 10;
+}
+
+.back-button:hover {
+  background: rgba(15, 23, 42, 0.9);
+  border-color: rgba(59, 130, 246, 0.5);
+  color: #93c5fd;
+  box-shadow: 
+    0 12px 32px rgba(37, 99, 235, 0.2),
+    0 0 20px rgba(59, 130, 246, 0.25),
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  transform: translateY(-50%) translateX(-2px);
+}
+
+.back-button:active {
+  transform: translateY(-50%) translateX(0);
+  box-shadow: 
+    0 4px 12px rgba(37, 99, 235, 0.15),
+    0 0 15px rgba(59, 130, 246, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.back-button:focus {
+  outline: none;
+  border-color: rgba(59, 130, 246, 0.6);
+  box-shadow: 
+    0 12px 32px rgba(37, 99, 235, 0.25),
+    0 0 25px rgba(59, 130, 246, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.back-icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.05));
+}
+
+/* Animation on page load */
+.back-button {
+  animation: slideInLeft 0.5s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+  }
+}
+
+/* ============================================
+   MAIN CONTENT LAYOUT WITH PROPER SPACING
+   ============================================ */
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  flex: 1;
+  gap: 28px;
+  padding: 0 0 24px 0;
+}
+
+.suggestions-section {
+  width: 100%;
+  animation: fadeInUp 0.6s cubic-bezier(0.4, 0.0, 0.2, 1) 0.1s both;
+}
+
+.chat-section {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  width: 100%;
+  min-height: 240px;
+  max-height: 50vh;
+  padding: 0 16px;
+  animation: fadeInUp 0.6s cubic-bezier(0.4, 0.0, 0.2, 1) 0.2s both;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

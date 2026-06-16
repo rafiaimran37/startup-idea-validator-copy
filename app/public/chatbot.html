@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Startup Advisor Chatbot</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.1/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="chatbot.css">
+</head>
+<body>
+  <div class="flex flex-col items-center w-full min-h-screen max-w-md mx-auto pb-28">
+    <!-- Premium Header Section with Back Button -->
+    <div class="header-section">
+      <button id="back-btn" class="back-button" title="Go back to home">
+        <svg xmlns="http://www.w3.org/2000/svg" class="back-icon" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M19 12H5m7-7l-7 7 7 7"/>
+        </svg>
+      </button>
+      <h1 class="header-title">How can I help you today?</h1>
+    </div>
+
+    <!-- Main Content Container with Proper Spacing -->
+    <div class="main-content">
+      <!-- Suggestion Cards Grid -->
+      <div class="suggestions-section">
+        <div class="grid grid-cols-2 gap-3 w-full px-4">
+          <button class="suggestion-card" data-suggestion="How can I monetize this startup?">How can I monetize this startup?</button>
+          <button class="suggestion-card" data-suggestion="What investors should I target?">What investors should I target?</button>
+          <button class="suggestion-card" data-suggestion="Should I use a subscription model?">Should I use a subscription model?</button>
+          <button class="suggestion-card" data-suggestion="How do I scale my startup?">How do I scale my startup?</button>
+        </div>
+      </div>
+
+      <!-- Chat Area -->
+      <div class="chat-section">
+        <div id="chat-area" class="flex-1 w-full flex flex-col gap-2 overflow-y-auto px-4 rounded-2xl shadow-inner border">
+          <div id="welcome-state" class="flex flex-col items-center justify-center h-full select-none py-8">
+            <span class="text-5xl mb-2">🤖</span>
+            <span class="text-lg font-medium">Ask me anything about your startup idea!</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Chat Input Bar - Premium Modern Design -->
+  <form id="chat-form" class="fixed bottom-0 left-0 right-0 max-w-md mx-auto w-full px-4 pb-4 z-50">
+    <!-- Input Container with Glassmorphism -->
+    <div class="input-container-wrapper">
+      <div class="premium-input-container">
+        <!-- Mic Button -->
+        <button type="button" id="mic-btn" class="mic-button" title="Voice input">
+          <svg xmlns="http://www.w3.org/2000/svg" class="mic-icon" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 16.91c-1.48 1.46-3.51 2.36-5.77 2.36-2.26 0-4.29-.9-5.77-2.36l-1.1 1.1c1.84 1.84 4.35 2.94 6.87 2.94s5.03-1.1 6.87-2.94l-1.1-1.1zM20 9h-1.7c0 .74-.16 1.43-.43 2.05l1.23 1.23c.56-1.26.9-2.62.9-4.05z"/><path d="M4 9c0 1.45.34 2.8.9 4.05l1.23-1.23c-.27-.62-.43-1.31-.43-2.05H4z"/>
+          </svg>
+        </button>
+
+        <!-- Text Input -->
+        <input 
+          id="chat-input" 
+          type="text" 
+          placeholder="Ask about your startup idea..." 
+          autocomplete="off" 
+          class="premium-input-field"
+        />
+
+        <!-- Send Button -->
+        <button type="submit" id="send-btn" class="send-button" title="Send message">
+          <svg xmlns="http://www.w3.org/2000/svg" class="send-icon" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M3 21v-4.25L17.2 12 3 5.25V1l20 11-20 11z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Typing Indicator -->
+    <div id="typing-indicator" class="text-xs text-gray-400 mt-2 ml-2 hidden">
+      <span class="inline-flex items-center gap-1">
+        AI is thinking
+        <span class="dot-anim">...</span>
+      </span>
+    </div>
+  </form>
+
+  <!-- Back Button Handler -->
+  <script>
+    document.getElementById('back-btn').addEventListener('click', function() {
+      window.location.href = 'index.html';
+    });
+  </script>
+
+  <script src="chatbot.js"></script>
+</body>
+</html>
